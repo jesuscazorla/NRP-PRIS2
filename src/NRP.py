@@ -12,21 +12,21 @@ class NRP (object):
     def __new__(cls):
         return super().__new__(cls)
     
-    def setDataframe(self, dataframe: Dataframe):
+    def setdataframe(self, dataframe: Dataframe):
         self.dataframe = dataframe.df
        
-    def printDataframe(self):
+    def printdataframe(self):
         print(self.dataframe)
         
-    def translateDataframe(self):
+    def translatedataframe(self):
         aux = self.dataframe.to_numpy()
         self.effortlimit = int(aux[0][0])
         for row in aux:
-            list = row[2]
+            stake = row[2]
             stakeholder = Stakeholder()
-            stakeholder.name = list[0]
-            stakeholder.requirementInfluence = list[1]
-            stakeholder.stakeholderInfluence = row[3]
+            stakeholder.name = stake[0]
+            stakeholder.requirementinfluence = stake[1]
+            stakeholder.stakeholderinfluence = row[3]
             stakeholder.influence = 0
             self.stakeholders.append(stakeholder)
             if str(row[1]) != 'nan':
@@ -35,12 +35,12 @@ class NRP (object):
                 requirement.description = newR[0]
                 requirement.effort = newR[1]
                 self.requirements.append(requirement)
-    def calculateFunctions(self):
+    def calculatefunctions(self):
         for i in range(len(self.stakeholders)):
             aux = Stakeholder()
             aux.name = self.stakeholders[i].name
-            aux.requirementInfluence = self.stakeholders[i].requirementInfluence
-            aux.stakeholderInfluence = self.stakeholders[i].stakeholderInfluence
+            aux.requirementinfluence = self.stakeholders[i].requirementinfluence
+            aux.stakeholderinfluence = self.stakeholders[i].stakeholderinfluence
             aux.calculateInfluence(self.stakeholders, i)
             self.stakeholders[i] = aux
         for j in range(len(self.requirements)):
@@ -49,7 +49,7 @@ class NRP (object):
             aux.effort = self.requirements[j].effort
             aux.calculateSatisfaction(self.stakeholders, j)
             self.requirements[j] = aux
-    def calculateNextSprint(self):
+    def calculatenextsprint(self):
         auxLimit = self.effortlimit
         while len(self.requirements) > 0:
             maxSatisfaction = 0

@@ -7,5 +7,5 @@ class Requirement (object):
         return super().__new__(cls) 
     def calculateSatisfaction(self, stakeholders, index):
         for i in range(len(stakeholders)):
-            if stakeholders[i].requirementInfluence[index]:
+            if stakeholders[i].requirementinfluence[index]:
                 self.satisfaction += stakeholders[i].influence
