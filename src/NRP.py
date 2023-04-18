@@ -1,6 +1,6 @@
 from ast import List
 from DataFrame import Dataframe
-from Requirement import Requirement
+from Requirement import Dependency, Requirement
 from Stakeholder import Stakeholder
 import numpy as np
 
@@ -33,7 +33,8 @@ class NRP (object):
                 newR = row[1]
                 requirement = Requirement()
                 requirement.description = newR[0]
-                requirement.effort = newR[1]
+                requirement.effort = newR[1]                    
+                requirement.dependencies = newR[2]
                 self.requirements.append(requirement)
     def calculatefunctions(self):
         for i in range(len(self.stakeholders)):
@@ -47,6 +48,7 @@ class NRP (object):
             aux = Requirement()
             aux.description = self.requirements[j].description
             aux.effort = self.requirements[j].effort
+            aux.dependencies = self.requirements[j].dependencies
             aux.calculateSatisfaction(self.stakeholders, j)
             self.requirements[j] = aux
     def calculatenextsprint(self):
@@ -64,8 +66,18 @@ class NRP (object):
                 if(self.requirements[i].effort <= auxLimit and self.requirements[i].satisfaction > maxSatisfaction):
                     maxSatisfaction = self.requirements[i].satisfaction
                     index = i
+                    #exclusionDependencies = np.where(self.requirements[i].dependencies==Dependency.EXCLUSION)
+                    #if(exclusionDependencies.count != 0):
+                    #    for i in exclusionDependencies:
+                    #      self.requirements.pop(exclusionindex)
+                
+                            
             auxLimit -= self.requirements[index].effort
             self.sprint.append(self.requirements.pop(index))
     def printSprint(self):
-        for requirement in self.sprint:
-            print(requirement.description)
+        print("Los requisitos a realizar para el proximo sprint son:")
+        print("El limite de esfuerzo es de %s" % (self.effortlimit))
+        effortused = 0
+        for requirement in self.sprint:         
+            effortused += requirement.effort
+            print("Description: %s Satisfaction: %s Effort: %s" % (requirement.description,requirement.satisfaction,requirement.effort))
