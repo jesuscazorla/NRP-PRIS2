@@ -66,14 +66,21 @@ class NRP (object):
                 if(self.requirements[i].effort <= auxLimit and self.requirements[i].satisfaction > maxSatisfaction):
                     maxSatisfaction = self.requirements[i].satisfaction
                     index = i
-                    #exclusionDependencies = np.where(self.requirements[i].dependencies==Dependency.EXCLUSION)
-                    #if(exclusionDependencies.count != 0):
-                    #    for i in exclusionDependencies:
-                    #      self.requirements.pop(exclusionindex)
-                
-                            
             auxLimit -= self.requirements[index].effort
-            self.sprint.append(self.requirements.pop(index))
+            nuevoindex = index
+            eliminados = []
+            for i in range(len(self.requirements[index].dependencies)):
+                if self.requirements[index].dependencies[i] == 'EXCLUSION' and i != index:
+                    eliminados.append(i)
+                    if i < index:
+                        nuevoindex = nuevoindex-1 
+            for i in range(len(eliminados)):
+                for j in range(len(self.requirements)):
+                    self.requirements[j].dependencies.pop(i)
+                self.requirements.pop(eliminados[i]-i)
+            self.sprint.append(self.requirements.pop(nuevoindex))
+            for i in range(len(self.requirements)):
+                self.requirements[i].dependencies.pop(nuevoindex) 
     def printSprint(self):
         print("Los requisitos a realizar para el proximo sprint son:")
         print("El limite de esfuerzo es de %s" % (self.effortlimit))
