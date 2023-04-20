@@ -55,7 +55,6 @@ class NRP (object):
     def calculatenextsprint(self):
         auxlimit = self.effortlimit
         while len(self.requirements) > 0:
-            maxsatisfaction = 0
             index = -1
             more = False
             for requirement in self.requirements:
@@ -63,42 +62,35 @@ class NRP (object):
                     more = True
             if more == False:
                 break
-            for i in range(len(self.requirements)):
-                if(self.requirements[i].effort <= auxlimit and self.requirements[i].satisfaction > maxsatisfaction):
-                    maxsatisfaction = self.requirements[i].satisfaction
-                    index = i
-                    
+            
+            bestrequirement = self.chooserequirement(auxlimit)
+            index = bestrequirement[1]
+                                
             if index == -1:
                 break
             else:
                 implicationresult = self.checkimplication(index, auxlimit)
-
                 if implicationresult[0] == 0:
-                    for i in reversed(range (len(implicationresult[1]))):
-                        self.requirements.pop(i)
+                    for i in range (len(implicationresult[1])):
+                        for j in reversed(range(len(self.requirements))):
+                            self.requirements[j].dependencies.pop(i)
+                            self.requirements.pop(implicationresult[1][i]-i)
                     continue  
                 else:
-                    if len(implicationresult[1]) == 0:   
+                    if len(implicationresult[1]) == 1:   
                       auxlimit -= self.requirements[index].effort
                     else:
                         auxlimit -= implicationresult[0]
                         for j in reversed(range (len(implicationresult[1]))):
                             self.sprint.append(self.requirements.pop(j))
                         self.sprint.reverse()
-                        continue
-                    
-                    
-                                  
+                        continue                  
              
-            
-          
+              
             newindex = index
-            removed = []
-            for i in range(len(self.requirements[index].dependencies)):
-                if self.requirements[index].dependencies[i] == 'EXCLUSION' and i != index:
-                    removed.append(i)
-                    if i < index:
-                        newindex = newindex-1 
+            exclusionchecked = self.checkexclusion(index, newindex)
+            newindex = exclusionchecked[0]       
+            removed = exclusionchecked[1]
                     
             for i in range(len(removed)):
                 for j in range(len(self.requirements)):
@@ -112,19 +104,36 @@ class NRP (object):
     def checkimplication(self, index, auxlimit):
         effort = self.requirements[index].effort
         implicacion = [index]
-        print(self.requirements)
-
         for i in range(len(self.requirements[index].dependencies)):
             if self.requirements[index].dependencies[i] == 'IMPLICACION' and i !=index:
                 effort += self.requirements[i].effort
-                implicacion.append(i)
+                implicacion.append(i)      
+       
  
         
         if(effort <= auxlimit):
               return [effort, implicacion]
         else: 
               return [0, implicacion]           
-                  
+          
+    def chooserequirement(self, auxlimit):
+        indx = -1
+        maxsat = 0
+        for i in range(len(self.requirements)):
+            if(self.requirements[i].effort <= auxlimit and self.requirements[i].satisfaction > maxsat):
+                maxsat = self.requirements[i].satisfaction
+                indx = i
+        return [maxsat, indx]
+    
+    def checkexclusion(self,index,newindex):
+        remove = []
+        for i in range(len(self.requirements[index].dependencies)):
+            if self.requirements[index].dependencies[i] == 'EXCLUSION' and i != index:
+                remove.append(i)
+                if i < index:
+                    newindex = newindex-1 
+        
+        return [newindex,remove]
                     
         
     def printSprint(self):
