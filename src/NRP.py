@@ -42,14 +42,14 @@ class NRP (object):
             aux.name = self.stakeholders[i].name
             aux.requirementinfluence = self.stakeholders[i].requirementinfluence
             aux.stakeholderinfluence = self.stakeholders[i].stakeholderinfluence
-            aux.calculateInfluence(self.stakeholders, i)
+            aux.calculateinfluence(self.stakeholders, i)
             self.stakeholders[i] = aux
         for j in range(len(self.requirements)):
             aux = Requirement()
             aux.description = self.requirements[j].description
             aux.effort = self.requirements[j].effort
             aux.dependencies = self.requirements[j].dependencies
-            aux.calculateSatisfaction(self.stakeholders, j)
+            aux.calculatesatisfaction(self.stakeholders, j)
             self.requirements[j] = aux
             
     def calculatenextsprint(self):
@@ -146,4 +146,6 @@ class NRP (object):
             for requirement in self.sprint:      
                 effortused += requirement.effort
                 print("Description: %s Satisfaction: %s Effort: %s" % (requirement.description,requirement.satisfaction,requirement.effort))
+            print("Effort used: %s" % (effortused))    
+            
             

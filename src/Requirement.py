@@ -18,7 +18,7 @@ class Requirement (object):
     def setDependencies(self, dependencies):
         self.dependencies = dependencies
         
-    def calculateSatisfaction(self, stakeholders, index):
+    def calculatesatisfaction(self, stakeholders, index):
         for i in range(len(stakeholders)):
             if stakeholders[i].requirementinfluence[index]:
                 self.satisfaction += stakeholders[i].influence
