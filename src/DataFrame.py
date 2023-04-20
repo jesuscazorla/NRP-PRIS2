@@ -5,8 +5,8 @@ from Requirement import Dependency
 
 class Dataframe(object):
     
-    effortLimit = pd.DataFrame({'effortLimit':[(5)]})
-    requirements = pd.DataFrame({'requirements': [['R0', 2, [Dependency.EXCLUSION.name,Dependency.EXCLUSION.name, Dependency.EXCLUSION.name]], ['R1', 1, [Dependency.IMPLICACION.name, Dependency.NONE.name,Dependency.NONE.name]], ['R2', 3, [Dependency.NONE.name,Dependency.EXCLUSION.name, Dependency.NONE.name]]]})
+    effortlimit = pd.DataFrame({'effortLimit':[(5)]})
+    requirements = pd.DataFrame({'requirements': [['R0', 2, [Dependency.EXCLUSION.name,Dependency.NONE.name, Dependency.NONE.name]], ['R1', 1, [Dependency.IMPLICACION.name, Dependency.NONE.name,Dependency.NONE.name]], ['R2', 3, [Dependency.IMPLICACION.name,Dependency.NONE.name, Dependency.NONE.name]]]})
     stakeholders = pd.DataFrame({'stakeholders': [['John', [True, True,True]], 
                                                   ['Joe', [False, False,True]],
                                                   ['Charles', [True, True,False]],
@@ -17,7 +17,7 @@ class Dataframe(object):
                                                            [True, True, False, False],
                                                            [True, True, True, False]]})
 
-    df = pd.concat([effortLimit,requirements,stakeholders,stakeholders_relations], ignore_index=True, axis=1)
+    df = pd.concat([effortlimit,requirements,stakeholders,stakeholders_relations], ignore_index=True, axis=1)
     
     def __new__(cls):
         return super().__new__(cls)
