@@ -55,14 +55,7 @@ class NRP (object):
     def calculatenextsprint(self):
         auxlimit = self.effortlimit
         while len(self.requirements) > 0:
-            index = -1
-            more = False
-            for requirement in self.requirements:
-                if requirement.effort <= auxlimit:
-                    more = True
-            if more == False:
-                break
-            
+            index = -1            
             bestrequirement = self.chooserequirement(auxlimit)
             index = bestrequirement[1]
                                 
@@ -85,8 +78,7 @@ class NRP (object):
                             self.sprint.append(self.requirements.pop(j))
                         self.sprint.reverse()
                         continue                  
-             
-              
+               
             newindex = index
             exclusionchecked = self.checkexclusion(index, newindex)
             newindex = exclusionchecked[0]       
