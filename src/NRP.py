@@ -136,10 +136,7 @@ class NRP (object):
                 self.requirements[j].dependencies.pop(int(removed[i])-i)
             if removed[i] in exclusionchecked:
                 self.requirements.pop(int(removed[i])-i)
-            elif removed[i] in implicated:
-                auxlimit -= self.requirements[int(removed[i])-i].effort
-                self.sprint.append(self.requirements.pop(int(removed[i])-i))
-            elif removed[i] in inclusioned:
+            elif removed[i] in implicated or removed[i] in inclusioned:
                 auxlimit -= self.requirements[int(removed[i])-i].effort
                 self.sprint.append(self.requirements.pop(int(removed[i])-i))
             
