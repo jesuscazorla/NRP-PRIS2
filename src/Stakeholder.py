@@ -9,5 +9,5 @@ class Stakeholder:
     def calculateinfluence(self,stakeholders, index):
         for i in range(len(stakeholders)):
             if(i != index):
-                if(stakeholders[i].stakeholderinfluence[index] == True):
+                if(stakeholders[i].stakeholderinfluence[index] == True and str(stakeholders[i]) != 'NaN'):
                     self.influence = self.influence+1   

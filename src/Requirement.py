@@ -15,7 +15,7 @@ class Requirement (object):
     def __new__(cls):
         return super().__new__(cls) 
     
-    def setDependencies(self, dependencies):
+    def setdependencies(self, dependencies):
         self.dependencies = dependencies
         
     def calculatesatisfaction(self, stakeholders, index):

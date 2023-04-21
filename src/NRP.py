@@ -22,19 +22,20 @@ class NRP (object):
         aux = self.dataframe.to_numpy()
         self.effortlimit = int(aux[0][0])
         for row in aux:
-            stake = row[2]
-            stakeholder = Stakeholder()
-            stakeholder.name = stake[0]
-            stakeholder.requirementinfluence = stake[1]
-            stakeholder.stakeholderinfluence = row[3]
-            stakeholder.influence = 0
-            self.stakeholders.append(stakeholder)
+            if(str(row[2]) != 'nan'):
+                stake = row[2]
+                stakeholder = Stakeholder()
+                stakeholder.name = stake[0]
+                stakeholder.requirementinfluence = stake[1]
+                stakeholder.stakeholderinfluence = row[3]
+                stakeholder.influence = 0
+                self.stakeholders.append(stakeholder)          
             if str(row[1]) != 'nan':
-                newR = row[1]
+                newr = row[1]
                 requirement = Requirement()
-                requirement.description = newR[0]
-                requirement.effort = newR[1]                    
-                requirement.dependencies = newR[2]
+                requirement.description = newr[0]
+                requirement.effort = newr[1]                    
+                requirement.dependencies = newr[2]
                 self.requirements.append(requirement)
     def calculatefunctions(self):
         for i in range(len(self.stakeholders)):
@@ -66,11 +67,7 @@ class NRP (object):
                 if inclusionresult == 0:
                     self.requirements.pop(index)
                 elif implicationresult[0] == 0 or (inclusionresult[0]+implicationresult[0]>auxlimit):
-                    for i in range (len(implicationresult[1])):
-                        for j in reversed(range(len(self.requirements))):
-                            self.requirements[j].dependencies.pop(i)
-                            self.requirements.pop(implicationresult[1][i]-i)
-                    continue  
+                   self.removeimplicationexcedeed(implicationresult)
                 else:
                     exclusionchecked = self.checkexclusion(index)     
                     implicated = implicationresult[1]
@@ -78,17 +75,8 @@ class NRP (object):
                     firstlist = np.append(exclusionchecked, implicated)
                     removed = np.append(firstlist, inclusioned)
                     removed.sort()
-                    for i in range(len(removed)):
-                        for j in range(len(self.requirements)):
-                            self.requirements[j].dependencies.pop(int(removed[i])-i)
-                        if removed[i] in exclusionchecked:
-                            self.requirements.pop(int(removed[i])-i)
-                        elif removed[i] in implicated:
-                            auxlimit -= self.requirements[int(removed[i])-i].effort
-                            self.sprint.append(self.requirements.pop(int(removed[i])-i))
-                        elif removed[i] in inclusioned:
-                            auxlimit -= self.requirements[int(removed[i])-i].effort
-                            self.sprint.append(self.requirements.pop(int(removed[i])-i))
+                    auxlimit = self.addtosprint(removed, implicated, inclusioned, exclusionchecked, auxlimit)
+                            
     def checkimplication(self, index, auxlimit):
         effort = self.requirements[index].effort
         implicacion = [index]
@@ -99,7 +87,8 @@ class NRP (object):
         if(effort <= auxlimit):
               return [effort, implicacion]
         else: 
-              return [0, implicacion]           
+              return [0, implicacion]   
+                  
     def checkinclusion(self, index,auxlimit):
         effort = 0
         inclusion = []
@@ -111,6 +100,7 @@ class NRP (object):
               return [effort, inclusion]
         else: 
               return 0       
+          
     def chooserequirement(self, auxlimit):
         indx = -1
         maxsat = 0
@@ -125,8 +115,6 @@ class NRP (object):
         for i in range(len(self.requirements[index].dependencies)):
             if self.requirements[index].dependencies[i] == 'EXCLUSION' and i != index:
                 remove.append(i)
-                if i < index:
-                    removedbefore +=1
         return remove
                     
     def introduceimplication(self, implicationresult):
@@ -135,7 +123,30 @@ class NRP (object):
                 self.requirements[j].dependencies.pop(i)
             self.sprint.append(self.requirements.pop(i))
         self.sprint.reverse() 
-    def printSprint(self):
+        
+    def removeimplicationexcedeed(self, implicationresult):
+          for i in range (len(implicationresult[1])):
+                for j in reversed(range(len(self.requirements))):
+                    self.requirements[j].dependencies.pop(i)
+                    self.requirements.pop(implicationresult[1][i]-i)
+    
+    def addtosprint(self, removed, implicated, inclusioned, exclusionchecked, auxlimit):
+        for i in range(len(removed)):
+            for j in range(len(self.requirements)):
+                self.requirements[j].dependencies.pop(int(removed[i])-i)
+            if removed[i] in exclusionchecked:
+                self.requirements.pop(int(removed[i])-i)
+            elif removed[i] in implicated:
+                auxlimit -= self.requirements[int(removed[i])-i].effort
+                self.sprint.append(self.requirements.pop(int(removed[i])-i))
+            elif removed[i] in inclusioned:
+                auxlimit -= self.requirements[int(removed[i])-i].effort
+                self.sprint.append(self.requirements.pop(int(removed[i])-i))
+            
+            return auxlimit
+        
+                    
+    def printsprint(self):
         print("Los requisitos a realizar para el proximo sprint son:")
         print("El limite de esfuerzo es de %s" % (self.effortlimit))
         effortused = 0

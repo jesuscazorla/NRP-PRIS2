@@ -7,13 +7,14 @@ def main():
     dataframeaux = Dataframe()
     nrp = NRP()
     nrp.setdataframe(dataframeaux)
-    nrp.translatedataframe()
-    nrp.calculatefunctions()
     if len(args) >= 1 and args[0] == '-showdf':
         nrp.printdataframe()
+    nrp.translatedataframe()
+    nrp.calculatefunctions()
+    
          
     nrp.calculatenextsprint()
-    nrp.printSprint()
+    nrp.printsprint()
     
     
 if __name__ == "__main__":
