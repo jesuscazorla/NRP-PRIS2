@@ -57,57 +57,60 @@ class NRP (object):
         while len(self.requirements) > 0:
             index = -1            
             bestrequirement = self.chooserequirement(auxlimit)
-            index = bestrequirement[1]
-                                
+            index = bestrequirement[1]                    
             if index == -1:
                 break
             else:
+                inclusionresult = self.checkinclusion(index, auxlimit)
                 implicationresult = self.checkimplication(index, auxlimit)
-                if implicationresult[0] == 0:
+                if inclusionresult == 0:
+                    self.requirements.pop(index)
+                elif implicationresult[0] == 0 or (inclusionresult[0]+implicationresult[0]>auxlimit):
                     for i in range (len(implicationresult[1])):
                         for j in reversed(range(len(self.requirements))):
                             self.requirements[j].dependencies.pop(i)
                             self.requirements.pop(implicationresult[1][i]-i)
                     continue  
                 else:
-                    if len(implicationresult[1]) == 1:   
-                      auxlimit -= self.requirements[index].effort
-                    else:
-                        auxlimit -= implicationresult[0]
-                        for j in reversed(range (len(implicationresult[1]))):
-                            self.sprint.append(self.requirements.pop(j))
-                        self.sprint.reverse()
-                        continue                  
-               
-            newindex = index
-            exclusionchecked = self.checkexclusion(index, newindex)
-            newindex = exclusionchecked[0]       
-            removed = exclusionchecked[1]
-                    
-            for i in range(len(removed)):
-                for j in range(len(self.requirements)):
-                    self.requirements[j].dependencies.pop(i)
-                self.requirements.pop(removed[i]-i)
-            
-            self.sprint.append(self.requirements.pop(newindex))
-            for i in range(len(self.requirements)):
-                self.requirements[i].dependencies.pop(newindex) 
-    
+                    exclusionchecked = self.checkexclusion(index)     
+                    implicated = implicationresult[1]
+                    inclusioned = inclusionresult[1]
+                    firstlist = np.append(exclusionchecked, implicated)
+                    removed = np.append(firstlist, inclusioned)
+                    removed.sort()
+                    for i in range(len(removed)):
+                        for j in range(len(self.requirements)):
+                            self.requirements[j].dependencies.pop(int(removed[i])-i)
+                        if removed[i] in exclusionchecked:
+                            self.requirements.pop(int(removed[i])-i)
+                        elif removed[i] in implicated:
+                            auxlimit -= self.requirements[int(removed[i])-i].effort
+                            self.sprint.append(self.requirements.pop(int(removed[i])-i))
+                        elif removed[i] in inclusioned:
+                            auxlimit -= self.requirements[int(removed[i])-i].effort
+                            self.sprint.append(self.requirements.pop(int(removed[i])-i))
     def checkimplication(self, index, auxlimit):
         effort = self.requirements[index].effort
         implicacion = [index]
         for i in range(len(self.requirements[index].dependencies)):
-            if self.requirements[index].dependencies[i] == 'IMPLICACION' and i !=index:
+            if (self.requirements[index].dependencies[i] == 'IMPLICACION') and i !=index:
                 effort += self.requirements[i].effort
-                implicacion.append(i)      
-       
- 
-        
+                implicacion.append(i)        
         if(effort <= auxlimit):
               return [effort, implicacion]
         else: 
               return [0, implicacion]           
-          
+    def checkinclusion(self, index,auxlimit):
+        effort = 0
+        inclusion = []
+        for i in range(len(self.requirements[index].dependencies)):
+            if (self.requirements[index].dependencies[i] == 'INCLUSION') and i !=index:
+                effort += self.requirements[i].effort
+                inclusion.append(i)        
+        if(effort <= auxlimit):
+              return [effort, inclusion]
+        else: 
+              return 0       
     def chooserequirement(self, auxlimit):
         indx = -1
         maxsat = 0
@@ -117,17 +120,21 @@ class NRP (object):
                 indx = i
         return [maxsat, indx]
     
-    def checkexclusion(self,index,newindex):
+    def checkexclusion(self,index):
         remove = []
         for i in range(len(self.requirements[index].dependencies)):
             if self.requirements[index].dependencies[i] == 'EXCLUSION' and i != index:
                 remove.append(i)
                 if i < index:
-                    newindex = newindex-1 
-        
-        return [newindex,remove]
+                    removedbefore +=1
+        return remove
                     
-        
+    def introduceimplication(self, implicationresult):
+        for i in reversed(range (len(implicationresult[1]))):
+            for j in range(len(self.requirements)):
+                self.requirements[j].dependencies.pop(i)
+            self.sprint.append(self.requirements.pop(i))
+        self.sprint.reverse() 
     def printSprint(self):
         print("Los requisitos a realizar para el proximo sprint son:")
         print("El limite de esfuerzo es de %s" % (self.effortlimit))
